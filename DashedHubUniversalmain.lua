@@ -1,156 +1,87 @@
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
+-- Cargamos la librería de interfaz visual Orion
+local OrionLib = loadstring(game:HttpGet(('https://githubusercontent.com')))()
 
--- ========================================================
--- CONFIGURACIÓN DE TU LLAVE MONETIZADA (Linkvertise)
--- ========================================================
-local LLAVE_CORRECTA = "DashedUniversal" -- Contraseña para tus seguidores
-local LINK_PARA_LLAVE = "https://linkvertise.com" -- Tu link corto
+-- CONFIGURACIÓN DE TU KEY Y LINKVERTISE
+-- Cambia lo que está entre comillas cada día según tu Linkvertise
+local LlaveCorrecta = "KEY_DIARIA_2026" 
+-- Reemplaza este enlace por tu URL real de Linkvertise
+local EnlaceLinkvertise = "https://linkvertise.com" 
 
--- 1. PANTALLA DE BLOQUEO (KEY SYSTEM UI)
-local KeyGui = Instance.new("ScreenGui", game.CoreGui)
-KeyGui.ResetOnSpawn = false
+-- Crear ventana del Key System
+local Window = OrionLib:MakeWindow({
+    Name = "Sistema de Key | Delta", 
+    HidePremium = false, 
+    SaveConfig = true, 
+    ConfigFolder = "DeltaFijaKey"
+})
 
-local KeyFrame = Instance.new("Frame", KeyGui)
-KeyFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
-KeyFrame.Position = UDim2.new(0.35, 0, 0.35, 0)
-KeyFrame.Size = UDim2.new(0, 300, 0, 180)
-KeyFrame.Active = true
-KeyFrame.Draggable = true
-Instance.new("UICorner", KeyFrame).CornerRadius = UDim.new(0, 12)
-local KStrok = Instance.new("UIStroke", KeyFrame)
-KStrok.Color = Color3.fromRGB(140, 60, 200)
-KStrok.Thickness = 1.5
+local KeyTab = Window:MakeTab({
+    Name = "Verificación",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
 
-local KeyTitle = Instance.new("TextLabel", KeyFrame)
-KeyTitle.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-KeyTitle.Size = UDim2.new(1, 0, 0, 35)
-KeyTitle.Font = Enum.Font.GothamBold
-KeyTitle.Text = "🔑 DASHED HUB | INGRESA KEY"
-KeyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-KeyTitle.TextSize = 13
-Instance.new("UICorner", KeyTitle).CornerRadius = UDim.new(0, 12)
+KeyTab:AddLabel("Para usar el script debes obtener la llave actual.")
 
-local TextBox = Instance.new("TextBox", KeyFrame)
-TextBox.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-TextBox.Position = UDim2.new(0.05, 0, 0.3, 0)
-TextBox.Size = UDim2.new(0.9, 0, 0, 35)
-TextBox.Font = Enum.Font.Gotham
-TextBox.PlaceholderText = "Pega la llave aquí..."
-TextBox.Text = ""
-TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextBox.TextSize = 12
-Instance.new("UICorner", TextBox).CornerRadius = UDim.new(0, 6)
-
-local CheckButton = Instance.new("TextButton", KeyFrame)
-CheckButton.BackgroundColor3 = Color3.fromRGB(140, 60, 200)
-CheckButton.Position = UDim2.new(0.05, 0, 0.6, 0)
-CheckButton.Size = UDim2.new(0.42, 0, 0, 35)
-CheckButton.Font = Enum.Font.GothamBold
-CheckButton.Text = "VERIFICAR"
-CheckButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CheckButton.TextSize = 12
-Instance.new("UICorner", CheckButton).CornerRadius = UDim.new(0, 6)
-
-local GetKeyBtn = Instance.new("TextButton", KeyFrame)
-GetKeyBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-GetKeyBtn.Position = UDim2.new(0.53, 0, 0.6, 0)
-GetKeyBtn.Size = UDim2.new(0.42, 0, 0, 35)
-GetKeyBtn.Font = Enum.Font.GothamBold
-GetKeyBtn.Text = "🏆 OBTENER KEY"
-GetKeyBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-GetKeyBtn.TextSize = 11
-Instance.new("UICorner", GetKeyBtn).CornerRadius = UDim.new(0, 6)
-
-GetKeyBtn.MouseButton1Click:Connect(function()
-    if setclipboard then
-        setclipboard(LINK_PARA_LLAVE)
-        game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Copiado", Text = "Linkvertise copiado al portapapeles.", Duration = 3})
+-- Botón para copiar el enlace de Linkvertise
+KeyTab:AddButton({
+    Name = "Copiar Enlace de Linkvertise",
+    Callback = function()
+        setclipboard(EnlaceLinkvertise)
+        OrionLib:MakeNotification({
+            Name = "¡Copiado!",
+            Content = "Enlace copiado. Pégalo en tu navegador para ver la llave.",
+            Image = "rbxassetid://4483345998",
+            Duration = 5
+        })
     end
-end)
+})
 
--- ========================================================
--- 2. MENÚ PRINCIPAL UNIVERSAL (DASHED HUB)
--- ========================================================
-local function AbrirMenuPrincipal()
-    local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-    ScreenGui.ResetOnSpawn = false
+-- Cuadro de texto para validar la llave ingresada por el usuario
+KeyTab:AddTextbox({
+    Name = "Ingresa la Key Aquí",
+    Default = "",
+    TextDisappear = false,
+    Callback = function(Value)
+        if Value == LlaveCorrecta then
+            OrionLib:MakeNotification({
+                Name = "Acceso Concedido",
+                Content = "¡Llave correcta! Cargando menú...",
+                Image = "rbxassetid://4483345998",
+                Duration = 4
+            })
+            
+            -- Cerramos el validador y abrimos el script principal
+            task.wait(1)
+            OrionLib:Destroy()
+            EjecutarScriptPrincipal()
+        else
+            OrionLib:MakeNotification({
+                Name = "Llave Incorrecta",
+                Content = "Esa llave no es válida o ya expiró.",
+                Image = "rbxassetid://4483345998",
+                Duration = 4
+            })
+        end
+    end
+})
 
-    local MainFrame = Instance.new("Frame", ScreenGui)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-    MainFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
-    MainFrame.Size = UDim2.new(0, 330, 0, 260)
-    MainFrame.Active = true
-    MainFrame.Draggable = true
-    Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 16)
-    local MainStroke = Instance.new("UIStroke", MainFrame)
-    MainStroke.Color = Color3.fromRGB(140, 60, 200)
-    MainStroke.Thickness = 1.5
-
-    local Title = Instance.new("TextLabel", MainFrame)
-    Title.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    Title.Size = UDim2.new(1, 0, 0, 45)
-    Title.Font = Enum.Font.GothamBold
-    Title.Text = "   ⚡ DASHED HUB UNIVERSAL"
-    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Title.TextXAlignment = Enum.TextXAlignment.Left
-    Title.TextSize = 14
-    Instance.new("UICorner", Title).CornerRadius = UDim.new(0, 16)
-
-    local CloseButton = Instance.new("TextButton", MainFrame)
-    CloseButton.BackgroundTransparency = 1
-    CloseButton.Position = UDim2.new(0.85, 0, 0, 0)
-    CloseButton.Size = UDim2.new(0, 40, 0, 45)
-    CloseButton.Font = Enum.Font.GothamBold
-    CloseButton.Text = "✕"
-    CloseButton.TextColor3 = Color3.fromRGB(255, 100, 100)
-    CloseButton.TextSize = 16
-    CloseButton.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
-
-    -- CONTENEDOR DE CONTENIDO (LISTA DE JUEGOS)
-    local ScrollFrame = Instance.new("ScrollingFrame", MainFrame)
-    ScrollFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-    ScrollFrame.BackgroundTransparency = 0.4
-    ScrollFrame.Position = UDim2.new(0.05, 0, 0.22, 0)
-    ScrollFrame.Size = UDim2.new(0, 295, 0, 160)
-    ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 300)
-    ScrollFrame.ScrollBarThickness = 3
-    ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(140, 60, 200)
-    Instance.new("UICorner", ScrollFrame).CornerRadius = UDim.new(0, 8)
-    local ListLayout = Instance.new("UIListLayout", ScrollFrame)
-    ListLayout.Padding = UDim.new(0, 8)
-    ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-    -- MENSAJE DE ESPERA DE JUEGOS
-    local PlaceholderText = Instance.new("TextLabel", ScrollFrame)
-    PlaceholderText.BackgroundTransparency = 1
-    PlaceholderText.Size = UDim2.new(0.9, 0, 0, 40)
-    PlaceholderText.Font = Enum.Font.Gotham
-    PlaceholderText.Text = "Módulos listos. Esperando configuraciones de mapas..."
-    PlaceholderText.TextColor3 = Color3.fromRGB(140, 140, 150)
-    PlaceholderText.TextSize = 11
-    PlaceholderText.TextWrapped = true
-
-    -- PIE DE PÁGINA (CRÉDITOS FIJOS)
-    local Credits = Instance.new("TextLabel", MainFrame)
-    Credits.BackgroundTransparency = 1
-    Credits.Position = UDim2.new(0, 0, 0.88, 0)
-    Credits.Size = UDim2.new(1, 0, 0, 25)
-    Credits.Font = Enum.Font.GothamSemibold
-    Credits.Text = "Creado por DASHED ✨ | Listo para TikTok"
-    Credits.TextColor3 = Color3.fromRGB(255, 215, 0)
-    Credits.TextSize = 12
+-- SCRIPT PRINCIPAL DESBLOQUEADO (Aquí pones tu menú real)
+function EjecutarScriptPrincipal()
+    local MainWin = OrionLib:MakeWindow({Name = "Script Premium Desbloqueado", HidePremium = false, SaveConfig = true, ConfigFolder = "MainDelta"})
+    local MainTab = MainWin:MakeTab({Name = "Funciones", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+    
+    MainTab:AddLabel("¡Bienvenido! Script activo con éxito.")
+    
+    -- Ejemplo de una función dentro de tu menú
+    MainTab:AddButton({
+        Name = "Aumentar Velocidad (Ejemplo)",
+        Callback = function()
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 50
+        end
+    })
+    
+    OrionLib:Init()
 end
 
--- LÓGICA DE VERIFICACIÓN
-CheckButton.MouseButton1Click:Connect(function()
-    if TextBox.Text == LLAVE_CORRECTA then
-        KeyGui:Destroy()
-        AbrirMenuPrincipal()
-    else
-        TextBox.Text = ""
-        TextBox.PlaceholderText = "❌ LLAVE INCORRECTA"
-        task.wait(1.5)
-        TextBox.PlaceholderText = "Pega la llave aquí..."
-    end
-end)
+OrionLib:Init()
