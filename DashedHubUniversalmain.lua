@@ -6,10 +6,9 @@ local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
--- Variables de Control Integradas
 local AimlockEnabled, AimbotEnabled, EspEnabled, FpsBoostEnabled = false, false, false, false
 local Smoothness, TargetPart, ActiveCharacters, OriginalMaterials = 0.25, "Head", {}, {}
-local FOVRadius = 100 -- Tamaño medio por defecto
+local FOVRadius = 100 
 
 local Themes = {
     {Name = "Rojo Neón", Color = Color3.fromRGB(200, 40, 60)},
@@ -24,9 +23,10 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0.58, 0, 0.72, 0) -- Ajustado alto para los nuevos controles de FOV
+MainFrame.Size = UDim2.new(0.58, 0, 0.72, 0)
 MainFrame.Position = UDim2.new(0.21, 0, 0.14, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(16, 14, 14)
+MainFrame.BackgroundTransparency = 0.25 -- CORREGIDO: Menú semitransparente premium
 MainFrame.ClipsDescendants = true
 MainFrame.Active, MainFrame.Visible = true, true
 MainFrame.Parent = ScreenGui
@@ -37,6 +37,7 @@ local MainStroke = Instance.new("UIStroke") MainStroke.Thickness = 1.2 MainStrok
 local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.new(0.28, 0, 1, 0)
 Sidebar.BackgroundColor3 = Color3.fromRGB(11, 9, 9)
+Sidebar.BackgroundTransparency = 0.25 -- CORREGIDO: Barra lateral transparente a juego
 Sidebar.BorderSizePixel = 0
 Sidebar.Parent = MainFrame
 
@@ -45,19 +46,18 @@ local SideCorner = Instance.new("UICorner") SideCorner.CornerRadius = UDim.new(0
 local HubTitle = Instance.new("TextLabel")
 HubTitle.Size = UDim2.new(1, 0, 0.12, 0)
 HubTitle.BackgroundTransparency = 1
-HubTitle.Text = "YANTO HUB VIP"
+HubTitle.Text = "AIMBOT UNIVERSAL"
 HubTitle.TextColor3 = Color3.fromRGB(220, 50, 70)
 HubTitle.TextScaled, HubTitle.Font = true, Enum.Font.GothamBold
 HubTitle.Parent = Sidebar
 
--- 🟢 CÍRCULO DE FOV PARA EL AIMBOT (NATIVO Y OPTIMIZADO)
 local FOVCircle = Drawing.new("Circle")
 FOVCircle.Color = Color3.fromRGB(255, 255, 255)
 FOVCircle.Thickness = 1
 FOVCircle.NumSides = 48
 FOVCircle.Radius = FOVRadius
 FOVCircle.Filled = false
-FOVCircle.Visible = false -- Se encenderá solo cuando actives el Aimbot
+FOVCircle.Visible = false
 local PerfFrame = Instance.new("Frame")
 PerfFrame.Size = UDim2.new(0.68, 0, 0.08, 0)
 PerfFrame.Position = UDim2.new(0.3, 0, 0.03, 0)
@@ -71,6 +71,7 @@ PerfLayout.Parent = PerfFrame
 local function createPerfLabel(color, order)
     local lbl = Instance.new("TextLabel")
     lbl.Size, lbl.BackgroundColor3, lbl.TextColor3 = UDim2.new(0.42, 0, 0.9, 0), color, Color3.fromRGB(255, 255, 255)
+    lbl.BackgroundTransparency = 0.2 -- Cápsulas de ping levemente translúcidas
     lbl.TextScaled, lbl.Font, lbl.LayoutOrder = true, Enum.Font.GothamSemibold, order
     local c = Instance.new("UICorner") c.CornerRadius = UDim.new(0, 10) c.Parent = lbl
     lbl.Parent = PerfFrame
@@ -114,6 +115,7 @@ local CreditsPage = createPage()
 local SavedMinBarPosition = UDim2.new(0.05, 0, 0.05, 0)
 local MinBar = Instance.new("Frame")
 MinBar.Size, MinBar.Position, MinBar.BackgroundColor3 = UDim2.new(0, 180, 0, 42), SavedMinBarPosition, Color3.fromRGB(15, 35, 30)
+MinBar.BackgroundTransparency = 0.15 -- Barra flotante sutilmente transparente
 MinBar.Active, MinBar.Draggable, MinBar.Visible = true, true, false
 MinBar.Parent = ScreenGui
 
@@ -130,29 +132,35 @@ DragIcon.Parent = MinBar
 
 local OpenButton = Instance.new("TextButton")
 OpenButton.Size, OpenButton.Position, OpenButton.BackgroundTransparency = UDim2.new(0.75, 0, 1, 0), UDim2.new(0.25, 0, 0, 0), 1
-OpenButton.Text, OpenButton.TextColor3, OpenButton.TextSize, OpenButton.Font = "🖥️  AUTOFARM", Color3.fromRGB(240, 240, 245), 14, Enum.Font.GothamBold
+OpenButton.Text, OpenButton.TextColor3, OpenButton.TextSize, OpenButton.Font = "🖥️  DashedHub", Color3.fromRGB(240, 240, 245), 14, Enum.Font.GothamBold
 OpenButton.Parent = MinBar
 
 OpenButton.MouseButton1Click:Connect(function()
-    MainFrame.Visible, MainFrame.Size, MainFrame.BackgroundTransparency, MinBar.Visible = true, UDim2.new(0, 0, 0, 0), 1, false
+    MainFrame.Visible, MainFrame.Size, MainFrame.BackgroundTransparency, MinBar.Visible = true, UDim2.new(0, 0, 0, 0), 0.25, false
     TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0.58, 0, 0.68, 0)}):Play()
-    TweenService:Create(MainFrame, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
+    TweenService:Create(MainFrame, TweenInfo.new(0.2), {BackgroundTransparency = 0.25}):Play() -- Mantiene la transparencia en la animación
 end)
 
 local CloseMenuBtn = Instance.new("TextButton")
 CloseMenuBtn.Size, CloseMenuBtn.Position, CloseMenuBtn.BackgroundColor3 = UDim2.new(0, 26, 0, 26), UDim2.new(0.94, 0, 0.03, 0), Color3.fromRGB(35, 25, 25)
+CloseMenuBtn.BackgroundTransparency = 0.3
 CloseMenuBtn.Text, CloseMenuBtn.TextColor3, CloseMenuBtn.Font, CloseMenuBtn.TextSize = "X", Color3.fromRGB(255, 90, 90), Enum.Font.GothamBold, 12
 CloseMenuBtn.Parent = MainFrame
 
 local CloseCorner = Instance.new("UICorner") CloseCorner.CornerRadius = UDim.new(1, 0) CloseCorner.Parent = CloseMenuBtn
 
 CloseMenuBtn.MouseButton1Click:Connect(function()
-    local t1 = TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)})
+    local t1 = TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+        Size = UDim2.new(0, 0, 0, 0),
+        Position = SavedMinBarPosition
+    })
     local t2 = TweenService:Create(MainFrame, TweenInfo.new(0.2), {BackgroundTransparency = 1})
     t1:Play() t2:Play()
+    
     t1.Completed:Connect(function()
         if not MainFrame.Visible then return end
         MainFrame.Visible = false
+        MainFrame.Position = UDim2.new(0.21, 0, 0.16, 0)
         MinBar.Position = SavedMinBarPosition
         MinBar.Visible = true
     end)
@@ -162,14 +170,14 @@ local function createTabSelection(name, order, targetPage)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.94, 0, 0, 30)
     btn.BackgroundColor3 = (order == 1) and Color3.fromRGB(35, 25, 25) or Color3.fromRGB(0, 0, 0)
-    btn.BackgroundTransparency = (order == 1) and 0 or 1
+    btn.BackgroundTransparency = (order == 1) and 0.3 or 1 -- Selección translúcida
     btn.Text, btn.TextColor3, btn.TextSize, btn.TextXAlignment, btn.Font, btn.LayoutOrder = "  " .. name, (order == 1) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(160, 160, 165), 11, Enum.TextXAlignment.Left, Enum.Font.GothamSemibold, order
     local c = Instance.new("UICorner") c.CornerRadius = UDim.new(0, 6) c.Parent = btn
     if order == 1 then ActiveTabButton = btn end
     
     btn.MouseButton1Click:Connect(function()
         if ActiveTabButton then ActiveTabButton.BackgroundTransparency, ActiveTabButton.TextColor3 = 1, Color3.fromRGB(160, 160, 165) end
-        btn.BackgroundColor3, btn.BackgroundTransparency, btn.TextColor3, ActiveTabButton = Color3.fromRGB(35, 25, 25), 0, Color3.fromRGB(255, 255, 255), btn
+        btn.BackgroundColor3, btn.BackgroundTransparency, btn.TextColor3, ActiveTabButton = Color3.fromRGB(35, 25, 25), 0.3, Color3.fromRGB(255, 255, 255), btn
         CombatPage.Visible = (targetPage == CombatPage)
         VisualPage.Visible = (targetPage == VisualPage)
         CreditsPage.Visible = (targetPage == CreditsPage)
@@ -192,6 +200,7 @@ local function createYantoToggle(name, parentPage, order, callback)
     local label = Instance.new("TextLabel") label.Size, label.BackgroundTransparency, label.Text, label.TextColor3, label.TextXAlignment, label.TextSize, label.Font = UDim2.new(0.7, 0, 1, 0), 1, "  " .. name, Color3.fromRGB(210, 210, 215), Enum.TextXAlignment.Left, 12, Enum.Font.GothamSemibold label.Parent = frame
 
     local switchBG = Instance.new("TextButton") switchBG.Size, switchBG.Position, switchBG.BackgroundColor3, switchBG.Text = UDim2.new(0, 38, 0, 20), UDim2.new(0.85, 0, 0.22, 0), Color3.fromRGB(45, 40, 40), ""
+    switchBG.BackgroundTransparency = 0.2
     local c1 = Instance.new("UICorner") c1.CornerRadius = UDim.new(1, 0) c1.Parent = switchBG
     local circle = Instance.new("Frame") circle.Size, circle.Position, circle.BackgroundColor3 = UDim2.new(0, 16, 0, 16), UDim2.new(0, 2, 0, 2), Color3.fromRGB(255, 255, 255)
     local c2 = Instance.new("UICorner") c2.CornerRadius = UDim.new(1, 0) c2.Parent = circle circle.Parent = switchBG
@@ -199,8 +208,11 @@ local function createYantoToggle(name, parentPage, order, callback)
     local enabled = false
     switchBG.MouseButton1Click:Connect(function()
         enabled = not enabled
-        TweenService:Create(circle, TweenInfo.new(0.15), {Position = enabled and UDim2.new(0, 20, 0, 2) or UDim2.new(0, 2, 0, 2)}):Play()
-        TweenService:Create(switchBG, TweenInfo.new(0.15), {BackgroundColor3 = enabled and Color3.fromRGB(210, 50, 70) or Color3.fromRGB(45, 40, 40)}):Play()
+        local targetX = enabled and UDim2.new(0, 20, 0, 2) or UDim2.new(0, 2, 0, 2)
+        local targetColor = enabled and Color3.fromRGB(210, 50, 70) or Color3.fromRGB(45, 40, 40)
+        
+        TweenService:Create(circle, TweenInfo.new(0.15), {Position = targetX}):Play()
+        TweenService:Create(switchBG, TweenInfo.new(0.15), {BackgroundColor3 = targetColor}):Play()
         callback(enabled)
     end)
     switchBG.Parent = frame
@@ -210,10 +222,10 @@ createSectionTitle("Aimbot Settings", CombatPage, 1)
 createYantoToggle("Aimbot (Silent/FOV)", CombatPage, 2, function(state) AimbotEnabled = state FOVCircle.Visible = state end)
 createYantoToggle("Aimlock (Fijar Cámara)", CombatPage, 3, function(state) AimlockEnabled = state end)
 
--- Botón para configurar el radio del FOV
 local FovSizeBtn = Instance.new("TextButton")
 FovSizeBtn.Size, FovSizeBtn.BackgroundColor3 = UDim2.new(0.94, 0, 0, 32), Color3.fromRGB(26, 22, 22)
-FovSizeBtn.Text, FovSizeBtn.TextColor3, FovSizeBtn.TextSize, FovSizeBtn.Font, FovSizeBtn.LayoutOrder = "  Radio FOV: MEDIO", Color3.fromRGB(240, 200, 100), 11, Enum.Font.GothamSemibold, 4
+FovSizeBtn.BackgroundTransparency = 0.3 -- Botón translúcido
+FovSizeBtn.Text, FovSizeBtn.TextColor3, FovSizeBtn.TextSize, FovSizeBtn.Font, FovSizeBtn.LayoutOrder = "  Radio FOV: MEDIO", Color3.fromRGB(240, 240, 100), 11, Enum.Font.GothamSemibold, 4
 FovSizeBtn.TextXAlignment = Enum.TextXAlignment.Left
 local fvc = Instance.new("UICorner") fvc.CornerRadius = UDim.new(0, 6) fvc.Parent = FovSizeBtn
 FovSizeBtn.MouseButton1Click:Connect(function()
@@ -226,6 +238,7 @@ FovSizeBtn.Parent = CombatPage
 
 local SmoothBtn = Instance.new("TextButton")
 SmoothBtn.Size, SmoothBtn.BackgroundColor3 = UDim2.new(0.94, 0, 0, 32), Color3.fromRGB(26, 22, 22)
+SmoothBtn.BackgroundTransparency = 0.3
 SmoothBtn.Text, SmoothBtn.TextColor3, SmoothBtn.TextSize, SmoothBtn.Font, SmoothBtn.LayoutOrder = "  Nivel Lock: MEDIO", Color3.fromRGB(180, 180, 185), 11, Enum.Font.GothamSemibold, 5
 SmoothBtn.TextXAlignment = Enum.TextXAlignment.Left
 local sc = Instance.new("UICorner") sc.CornerRadius = UDim.new(0, 6) sc.Parent = SmoothBtn
@@ -238,6 +251,7 @@ SmoothBtn.Parent = CombatPage
 
 local TargetBtn = Instance.new("TextButton")
 TargetBtn.Size, TargetBtn.BackgroundColor3 = UDim2.new(0.94, 0, 0, 32), Color3.fromRGB(26, 22, 22)
+TargetBtn.BackgroundTransparency = 0.3
 TargetBtn.Text, TargetBtn.TextColor3, TargetBtn.TextSize, TargetBtn.Font, TargetBtn.LayoutOrder = "  Apuntar a: CABEZA", Color3.fromRGB(0, 180, 240), 11, Enum.Font.GothamSemibold, 6
 TargetBtn.TextXAlignment = Enum.TextXAlignment.Left
 local tc = Instance.new("UICorner") tc.CornerRadius = UDim.new(0, 6) tc.Parent = TargetBtn
@@ -270,6 +284,7 @@ end)
 createSectionTitle("Panel Themes", CreditsPage, 1)
 local AspectBtn = Instance.new("TextButton")
 AspectBtn.Size, AspectBtn.BackgroundColor3 = UDim2.new(0.94, 0, 0, 32), Color3.fromRGB(26, 22, 22)
+AspectBtn.BackgroundTransparency = 0.3
 AspectBtn.Text, AspectBtn.TextColor3, AspectBtn.TextSize, AspectBtn.Font, AspectBtn.LayoutOrder = "  Cambiar Aspecto: " .. Themes[CurrentThemeIndex].Name, Color3.fromRGB(220, 220, 225), 11, Enum.Font.GothamSemibold, 2
 AspectBtn.TextXAlignment = Enum.TextXAlignment.Left
 local ac = Instance.new("UICorner") ac.CornerRadius = UDim.new(0, 6) ac.Parent = AspectBtn
@@ -282,6 +297,7 @@ AspectBtn.Parent = CreditsPage
 
 local function createInfoCard(title, text, order)
     local card = Instance.new("TextLabel") card.Size, card.BackgroundColor3, card.Text, card.TextColor3, card.TextSize, card.Font, card.TextXAlignment, card.LayoutOrder = UDim2.new(0.94, 0, 0, 34), Color3.fromRGB(24, 20, 20), "  " .. title .. " " .. text, Color3.fromRGB(160, 160, 165), 11, Enum.Font.Gotham, Enum.TextXAlignment.Left, order
+    card.BackgroundTransparency = 0.4
     local cc = Instance.new("UICorner") cc.CornerRadius = UDim.new(0, 6) cc.Parent = card card.Parent = CreditsPage
 end
 createInfoCard("Versión del Script:", "v5.0 Ultimate", 3)
@@ -309,7 +325,6 @@ task.spawn(function()
     end
 end)
 
--- Buscador unificado compatible con Aimlock (Toda la pantalla) y Aimbot (Filtro por radio de FOV)
 local function getClosestTarget(useFOV)
     if not checkAlive(LocalPlayer) then return nil end
     local closest, shortest = nil, useFOV and FOVRadius or math.huge
@@ -331,21 +346,16 @@ local function getClosestTarget(useFOV)
     return closest
 end
 
--- 🟥 SECCIÓN CRÍTICA: MOTOR DE REDIRECCIÓN SILENT AIM (AIMBOT)
 local oldNamecall
 oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
     local method = getnamecallmethod()
     local args = {...}
-    
     if AimbotEnabled and (method == "FindPartOnRayWithIgnoreList" or method == "FindPartOnRay" or method == "Raycast") then
-        local t = getClosestTarget(true) -- Busca solo dentro del FOVRadius
+        local t = getClosestTarget(true)
         if t and t.Character and t.Character:FindFirstChild(TargetPart) then
-            -- Redirige matemáticamente la bala hacia la cabeza/torso seleccionados
             local origin = Camera.CFrame.Position
             local targetPos = t.Character[TargetPart].Position
-            if method == "Raycast" then
-                args[2] = (targetPos - args[1]).Unit * 1000
-            end
+            if method == "Raycast" then args = (targetPos - args).Unit * 1000 end
             return oldNamecall(self, unpack(args))
         end
     end
@@ -356,7 +366,6 @@ RunService.RenderStepped:Connect(function()
     local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
     FOVCircle.Position = center
 
-    -- Aimlock Clásico (Fijado de Cámara completo)
     if AimlockEnabled and checkAlive(LocalPlayer) then
         local t = getClosestTarget(false)
         if t and t.Character and t.Character:FindFirstChild(TargetPart) then
